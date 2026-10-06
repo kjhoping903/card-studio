@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>짤·카드 스튜디오</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --primary-color: #4a90e2;
+      --primary-hover: #357abd;
+      --danger-color: #d9534f;
+      --border-color: #e0e0e0;
+      --text-color: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: #1a1a1a;
+    }
+
+    /* Status & Message Area */
+    .alert-box {
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      display: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .alert-box.error {
+      background-color: #fde8e8;
+      color: #9b1c1c;
+      border: 1px solid #f8b4b4;
+    }
+    .alert-box.info {
+      background-color: #e1effe;
+      color: #1e429f;
+      border: 1px solid #a4cafe;
+    }
+    .alert-box.success {
+      background-color: #def7ec;
+      color: #03543f;
+      border: 1px solid #84e1bc;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 360px 1fr 340px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group textarea,
+    .form-group select {
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    /* Preview Canvas Area */
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 20px;
+      min-height: 400px;
+      position: relative;
+    }
+
+    /* CSS Aspect Ratios & Resizing */
+    .canvas-wrapper {
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: repeating-conic-gradient(#808080 0% 25%, #ffffff 0% 50%) 50% / 16px 16px;
+      max-width: 100%;
+      max-height: 60vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .notice-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    /* Template Item Styling */
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .template-item {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .template-item .tpl-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .template-item .tpl-meta {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .template-item .tpl-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .template-item .tpl-actions button {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+    }
+
+    .bg-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .bg-preset-btn {
+      padding: 6px;
+      font-size: 0.75rem;
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🎨 짤·카드 스튜디오</h1>
+  </div>
+
+  <div id="alertBox" class="alert-box"></div>
+
+  <div class="grid-container">
+    <!-- 카드 1 & 2: 이미지 & 문구 편집 도구 -->
+    <div class="card">
+      <h2>1. 편집 도구 (T03-C03)</h2>
+      
+      <div class="form-group">
+        <label for="imageInput">배경 이미지 업로드 (PNG, JPEG)</label>
+        <input type="file" id="imageInput" accept="image/png, image/jpeg">
+      </div>
+
+      <div class="form-group">
+        <label>생성형 배경 예제 (외부 이미지 미사용)</label>
+        <div class="bg-presets">
+          <button class="bg-preset-btn" onclick="applyPresetBg('gradient')">그라디언트</button>
+          <button class="bg-preset-btn" onclick="applyPresetBg('pattern')">격자 패턴</button>
+          <button class="bg-preset-btn" onclick="applyPresetBg('dark')">다크 카드</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="aspectRatioSelect">화면비 선택 (T03-C11)</label>
+        <select id="aspectRatioSelect" onchange="handleAspectRatioChange()">
+          <option value="1:1">1:1 (1080 × 1080)</option>
+          <option value="4:5">4:5 (1080 × 1350)</option>
+          <option value="9:16">9:16 (1080 × 1920)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="textInput">한글/영문 문구 입력</label>
+        <textarea id="textInput" placeholder="문구를 입력하세요... (줄바꿈 가능)" oninput="updateTextFromInput()"></textarea>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="posX">X 위치 (px)</label>
+          <input type="number" id="posX" value="540" min="0" max="1080" onchange="updateTextFromInput()">
+        </div>
+        <div class="form-group">
+          <label for="posY">Y 위치 (px)</label>
+          <input type="number" id="posY" value="540" min="0" max="1920" onchange="updateTextFromInput()">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="fontSize">글자 크기 (pt)</label>
+          <input type="number" id="fontSize" value="60" min="10" max="200" onchange="updateTextFromInput()">
+        </div>
+        <div class="form-group">
+          <label for="textColor">글자 색상</label>
+          <input type="color" id="textColor" value="#ffffff" onchange="updateTextFromInput()" style="height: 38px; padding: 2px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="bgFitSelect">배경 이미지 맞춤 정책</label>
+        <select id="bgFitSelect" onchange="renderCanvas()">
+          <option value="cover">자르기 채우기 (Cover)</option>
+          <option value="contain">전체 맞춤 (Contain - 투명/여백 처리)</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="downloadImage()">💾 PNG 이미지 다운로드</button>
+      <p class="notice-text">※ 투명 PNG를 배경으로 가져올 경우 기본 검은색 배경 위로 합성됩니다.</p>
+    </div>
+
+    <!-- 카드 2: 미리보기 영역 -->
+    <div class="card">
+      <h2>2. 실시간 미리보기</h2>
+      <div class="preview-container">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="mainCanvas" width="1080" height="1080"></canvas>
+        </div>
+        <p class="notice-text" style="margin-top:15px;">출력 해상도 캔버스가 동일하게 축소되어 표시됩니다.</p>
+      </div>
+    </div>
+
+    <!-- 카드 4 & 5: 템플릿 관리 & JSON 내보내기/가져오기 -->
+    <div class="card">
+      <h2>3. 템플릿 및 JSON 관리</h2>
+
+      <div class="form-group">
+        <label for="templateName">템플릿 이름</label>
+        <input type="text" id="templateName" placeholder="예: 기본 카드 템플릿">
+      </div>
+      <button class="btn btn-secondary" onclick="saveCurrentAsTemplate()">➕ 현재 설정 템플릿 저장</button>
+      <p class="notice-text">※ 문구 및 배치 설정만 저장됩니다. (배경 이미지는 미포함)</p>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+
+      <h3>저장된 템플릿 목록</h3>
+      <div class="template-list" id="templateList"></div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+
+      <h3>JSON 백업 / 복원</h3>
+      <div class="row">
+        <button class="btn btn-secondary" style="flex:1;" onclick="exportJSON()">📤 JSON 내보내기</button>
+        <label class="btn btn-secondary" style="flex:1; cursor:pointer;">
+          📥 JSON 가져오기
+          <input type="file" id="jsonInput" accept="application/json" style="display:none;" onchange="importJSON(event)">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global Application State
+    const state = {
+      aspectRatio: '1:1', // '1:1', '4:5', '9:16'
+      canvasWidth: 1080,
+      canvasHeight: 1080,
+      text: "여기에 문구를 입력하세요\n두 번째 줄 예시 😃",
+      posX: 540,
+      posY: 540,
+      fontSize: 60,
+      textColor: '#ffffff',
+      bgFit: 'cover',
+      bgImage: null, // HTMLImageElement or CanvasGradient function
+      bgType: 'preset-gradient', // 'preset-gradient', 'preset-pattern', 'preset-dark', 'user-image'
+      latestUploadToken: 0,
+      templates: []
+    };
+
+    // Constants
+    const SCHEMA_VERSION = "1.0";
+    const STORAGE_KEY = "STORY_CARD_TEMPLATES_V1";
+    const MIN_FONT_SIZE = 16;
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Font Loading Check
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      // DOM Initial values
+      document.getElementById('textInput').value = state.text;
+      document.getElementById('posX').value = state.posX;
+      document.getElementById('posY').value = state.posY;
+      document.getElementById('fontSize').value = state.fontSize;
+      document.getElementById('textColor').value = state.textColor;
+
+      // Event Listeners for File Input
+      document.getElementById('imageInput').addEventListener('change', handleImageUpload);
+
+      // Default Preset Background Setup
+      applyPresetBg('gradient');
+
+      // Load Templates from LocalStorage
+      loadTemplatesFromStorage();
+    });
+
+    // Alert Message Helper
+    function showAlert(msg, type = 'error') {
+      const box = document.getElementById('alertBox');
+      box.className = `alert-box ${type}`;
+      box.textContent = msg;
+      box.style.display = 'block';
+      setTimeout(() => {
+        // Keep message visible long enough for reading
+      }, 5000);
+    }
+
+    function clearAlert() {
+      const box = document.getElementById('alertBox');
+      box.style.display = 'none';
+      box.textContent = '';
+    }
+
+    // Input Validation & State Sync
+    function updateTextFromInput() {
+      const rawText = document.getElementById('textInput').value;
+      const rawX = parseInt(document.getElementById('posX').value, 10);
+      const rawY = parseInt(document.getElementById('posY').value, 10);
+      const rawSize = parseInt(document.getElementById('fontSize').value, 10);
+      const color = document.getElementById('textColor').value;
+
+      // Validation
+      if (isNaN(rawX) || rawX < 0 || rawX > state.canvasWidth) {
+        showAlert(`X 위치는 0 ~ ${state.canvasWidth} 사이의 숫자여야 합니다.`, 'error');
+        document.getElementById('posX').value = state.posX; // Revert UI
+        return;
+      }
+      if (isNaN(rawY) || rawY < 0 || rawY > state.canvasHeight) {
+        showAlert(`Y 위치는 0 ~ ${state.canvasHeight} 사이의 숫자여야 합니다.`, 'error');
+        document.getElementById('posY').value = state.posY; // Revert UI
+        return;
+      }
+      if (isNaN(rawSize) || rawSize < 10 || rawSize > 300) {
+        showAlert('글자 크기는 10 ~ 300 pt 사이여야 합니다.', 'error');
+        document.getElementById('fontSize').value = state.fontSize; // Revert UI
+        return;
+      }
+
+      clearAlert();
+      state.text = rawText;
+      state.posX = rawX;
+      state.posY = rawY;
+      state.fontSize = rawSize;
+      state.textColor = color;
+
+      renderCanvas();
+    }
+
+    // Aspect Ratio Handler
+    function handleAspectRatioChange() {
+      const val = document.getElementById('aspectRatioSelect').value;
+      state.aspectRatio = val;
+
+      if (val === '1:1') {
+        state.canvasWidth = 1080;
+        state.canvasHeight = 1080;
+      } else if (val === '4:5') {
+        state.canvasWidth = 1080;
+        state.canvasHeight = 1350;
+      } else if (val === '9:16') {
+        state.canvasWidth = 1080;
+        state.canvasHeight = 1920;
+      }
+
+      // Aspect Ratio CSS adjustment for preview wrapper
+      const wrapper = document.getElementById('canvasWrapper');
+      wrapper.style.aspectRatio = val.replace(':', '/');
+
+      const canvas = document.getElementById('mainCanvas');
+      canvas.width = state.canvasWidth;
+      canvas.height = state.canvasHeight;
+
+      // Adjust default positions if out of bounds
+      if (state.posX > state.canvasWidth) state.posX = state.canvasWidth / 2;
+      if (state.posY > state.canvasHeight) state.posY = state.canvasHeight / 2;
+      document.getElementById('posX').value = state.posX;
+      document.getElementById('posY').value = state.posY;
+
+      renderCanvas();
+    }
+
+    // Secure Image Loader with Strict File Validation & Race Condition Prevention
+    async function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const currentToken = ++state.latestUploadToken;
+
+      // MIME & Extension Validation (T03-C09, T03-C10)
+      const validMimes = ['image/png', 'image/jpeg'];
+      const ext = file.name.split('.').pop().toLowerCase();
+      const validExts = ['png', 'jpg', 'jpeg'];
+
+      if (!validMimes.includes(file.type) || !validExts.includes(ext)) {
+        showAlert(`지원하지 않는 파일 형식입니다 (${file.name}). PNG 또는 JPEG 이미지만 업로드 가능합니다. (상태 유지됨)`, 'error');
+        e.target.value = ''; // Reset file input
+        return;
+      }
+
+      // Magic Number Validation
+      try {
+        const isMagicValid = await validateMagicNumber(file);
+        if (!isMagicValid) {
+          showAlert(`손상되었거나 확장자가 조작된 파일입니다 (${file.name}). 실제 PNG/JPEG 파일인지 확인해 주세요.`, 'error');
+          e.target.value = '';
+          return;
+        }
+
+        // Object Decoding & Async Image Loading
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        img.onload = () => {
+          if (currentToken !== state.latestUploadToken) {
+            // Race condition check: drop stale upload
+            URL.revokeObjectURL(objectUrl);
+            return;
+          }
+          state.bgImage = img;
+          state.bgType = 'user-image';
+          clearAlert();
+          renderCanvas();
+          showAlert('이미지가 성공적으로 교체되었습니다.', 'success');
+        };
+
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          showAlert('이미지 디코딩에 실패했습니다. 파일이 손상되었을 수 있습니다.', 'error');
+          e.target.value = '';
+        };
+
+        img.src = objectUrl;
+
+      } catch (err) {
+        showAlert('파일을 읽는 도중 오류가 발생했습니다.', 'error');
+        e.target.value = '';
+      }
+    }
+
+    // Binary Magic Number Checking Function
+    function validateMagicNumber(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = function(e) {
+          if (!e.target.result || e.target.result.byteLength < 4) {
+            resolve(false);
+            return;
+          }
+          const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+          let header = "";
+          for (let i = 0; i < arr.length; i++) {
+            header += arr[i].toString(16).padStart(2, '0');
+          }
+          // PNG magic number: 89504e47, JPEG magic number: ffd8ff
+          if (header.startsWith('89504e47') || header.startsWith('ffd8ff')) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        };
+        reader.onerror = () => resolve(false);
+        reader.readAsArrayBuffer(file.slice(0, 4));
+      });
+    }
+
+    // Presets Background Generation
+    function applyPresetBg(type) {
+      state.bgType = `preset-${type}`;
+      state.bgImage = null;
+      document.getElementById('imageInput').value = '';
+      clearAlert();
+      renderCanvas();
+    }
+
+    // Core Draw Function (Shared between Preview and Download - T03-C11, C12, C13)
+    function drawStudioCanvas(canvas) {
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Draw Background
+      if (state.bgType === 'user-image' && state.bgImage) {
+        // Base fill for transparent PNGs
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, width, height);
+
+        const img = state.bgImage;
+        const fit = document.getElementById('bgFitSelect').value;
+
+        if (fit === 'cover') {
+          const imgRatio = img.width / img.height;
+          const canvasRatio = width / height;
+          let drawW, drawH, offsetX, offsetY;
+
+          if (imgRatio > canvasRatio) {
+            drawH = height;
+            drawW = height * imgRatio;
+            offsetX = (width - drawW) / 2;
+            offsetY = 0;
+          } else {
+            drawW = width;
+            drawH = width / imgRatio;
+            offsetX = 0;
+            offsetY = (height - drawH) / 2;
+          }
+          ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+        } else { // contain
+          const imgRatio = img.width / img.height;
+          const canvasRatio = width / height;
+          let drawW, drawH, offsetX, offsetY;
+
+          if (imgRatio > canvasRatio) {
+            drawW = width;
+            drawH = width / imgRatio;
+            offsetX = 0;
+            offsetY = (height - drawH) / 2;
+          } else {
+            drawH = height;
+            drawW = height * imgRatio;
+            offsetX = (width - drawW) / 2;
+            offsetY = 0;
+          }
+          ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+        }
+      } else if (state.bgType === 'preset-gradient') {
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#1a2a6c');
+        grad.addColorStop(0.5, '#b21f1f');
+        grad.addColorStop(1, '#fdbb2d');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+      } else if (state.bgType === 'preset-pattern') {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 10;
+        for (let i = 0; i < width; i += 60) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i, height);
+          ctx.stroke();
+        }
+        for (let j = 0; j < height; j += 60) {
+          ctx.beginPath();
+          ctx.moveTo(0, j);
+          ctx.lineTo(width, j);
+          ctx.stroke();
+        }
+      } else if (state.bgType === 'preset-dark') {
+        ctx.fillStyle = '#121212';
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 20;
+        ctx.strokeRect(40, 40, width - 80, height - 80);
+      }
+
+      // 2. Text Rendering Logic (Word Wrap, Auto Scale, Combination Emoji Preservation)
+      renderTextWithAutoFit(ctx, width, height);
+    }
+
+    // Advanced Text Rendering with Auto-Fit & Segmenter for Emojis
+    function renderTextWithAutoFit(ctx, canvasWidth, canvasHeight) {
+      let currentFontSize = state.fontSize;
+      const text = state.text;
+
+      if (!text || text.trim() === "") return;
+
+      // Split explicit linebreaks preserving empty lines
+      const rawLines = text.split('\n');
+
+      let lines = [];
+      let fontSizeToUse = currentFontSize;
+      let textHeightTotal = 0;
+
+      // Iterative scaling to ensure text fits inside Canvas boundary
+      while (fontSizeToUse >= MIN_FONT_SIZE) {
+        ctx.font = `bold ${fontSizeToUse}px 'Pretendard', sans-serif`;
+        lines = [];
+
+        for (let line of rawLines) {
+          if (line === '') {
+            lines.push('');
+            continue;
+          }
+          // Wrap single line safely respecting unicode cluster graphemes
+          const wrapped = wrapTextLine(ctx, line, canvasWidth - 80);
+          lines.push(...wrapped);
+        }
+
+        const lineHeight = fontSizeToUse * 1.25;
+        textHeightTotal = lines.length * lineHeight;
+
+        // Check overflow
+        const startY = state.posY;
+        if (startY + textHeightTotal <= canvasHeight && startY >= 0) {
+          break; // Fits
+        }
+
+        fontSizeToUse -= 2; // Auto shrink step
+      }
+
+      if (fontSizeToUse < MIN_FONT_SIZE) {
+        showAlert(`⚠️ 문구가 너무 길어 최소 글자 크기(${MIN_FONT_SIZE}pt)에서도 범위를 초과합니다.`, 'info');
+        fontSizeToUse = MIN_FONT_SIZE;
+      }
+
+      // Render Text
+      ctx.font = `bold ${fontSizeToUse}px 'Pretendard', sans-serif`;
+      ctx.fillStyle = state.textColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      // Drop Shadow for text readability
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+
+      const lineHeight = fontSizeToUse * 1.25;
+      let currentY = state.posY;
+
+      for (let line of lines) {
+        ctx.fillText(line, state.posX, currentY);
+        currentY += lineHeight;
+      }
+
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+    }
+
+    // Safe Word Wrap supporting Emoji Clusters using Intl.Segmenter
+    function wrapTextLine(ctx, textLine, maxWidth) {
+      const words = textLine.split(' ');
+      let lines = [];
+      let currentLine = '';
+
+      // Check if Segmenter is available for Emoji safety
+      const segmenter = window.Intl && Intl.Segmenter ? new Intl.Segmenter('ko', { granularity: 'grapheme' }) : null;
+
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        const metrics = ctx.measureText(testLine);
+
+        if (metrics.width <= maxWidth) {
+          currentLine = testLine;
+        } else {
+          if (currentLine) {
+            lines.push(currentLine);
+          }
+          // Handle long word without spaces
+          const wordMetrics = ctx.measureText(word);
+          if (wordMetrics.width > maxWidth) {
+            // Split long word safely without breaking combined emojis
+            const chars = segmenter ? Array.from(segmenter.segment(word)).map(s => s.segment) : Array.from(word);
+            let subLine = '';
+            for (let char of chars) {
+              if (ctx.measureText(subLine + char).width > maxWidth) {
+                lines.push(subLine);
+                subLine = char;
+              } else {
+                subLine += char;
+              }
+            }
+            currentLine = subLine;
+          } else {
+            currentLine = word;
+          }
+        }
+      }
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      return lines;
+    }
+
+    // Trigger Canvas Render
+    function renderCanvas() {
+      const canvas = document.getElementById('mainCanvas');
+      drawStudioCanvas(canvas);
+    }
+
+    // Download Handler (T03-C11, C12, C13, C28)
+    function downloadImage() {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = state.canvasWidth;
+      exportCanvas.height = state.canvasHeight;
+
+      // Draw onto export canvas using exact same function
+      drawStudioCanvas(exportCanvas);
+
+      // Export as PNG (EXIF stripped by HTML Canvas Blob generation)
+      exportCanvas.toBlob((blob) => {
+        if (!blob) {
+          showAlert('이미지 생성에 실패하였습니다.', 'error');
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `card-studio-${state.aspectRatio.replace(':', 'x')}-${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showAlert('PNG 이미지가 성공적으로 다운로드되었습니다.', 'success');
+      }, 'image/png');
+    }
+
+    // Helper: UUID Generator
+    function generateUUID() {
+      return 'tpl-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // Template CRUD Operations (T03-C17 ~ C21)
+    function saveCurrentAsTemplate() {
+      const nameInput = document.getElementById('templateName');
+      const name = nameInput.value.trim() || `템플릿 ${state.templates.length + 1}`;
+
+      const newTemplate = {
+        id: generateUUID(),
+        name: sanitizeText(name),
+        text: state.text,
+        aspectRatio: state.aspectRatio,
+        posX: state.posX,
+        posY: state.posY,
+        fontSize: state.fontSize,
+        textColor: state.textColor,
+        bgFit: document.getElementById('bgFitSelect').value,
+        createdAt: new Date().toISOString()
+      };
+
+      state.templates.push(newTemplate);
+      if (persistTemplates()) {
+        showAlert(`템플릿 "${newTemplate.name}"이(가) 저장되었습니다. (문구/배치만 포함)`, 'success');
+        nameInput.value = '';
+        renderTemplateList();
+      }
+    }
+
+    function loadTemplate(id) {
+      const tpl = state.templates.find(t => t.id === id);
+      if (!tpl) {
+        showAlert('템플릿을 찾을 수 없습니다.', 'error');
+        return;
+      }
+
+      state.text = tpl.text;
+      state.aspectRatio = tpl.aspectRatio;
+      state.posX = tpl.posX;
+      state.posY = tpl.posY;
+      state.fontSize = tpl.fontSize;
+      state.textColor = tpl.textColor;
+
+      // Sync Form UI
+      document.getElementById('textInput').value = state.text;
+      document.getElementById('aspectRatioSelect').value = state.aspectRatio;
+      document.getElementById('posX').value = state.posX;
+      document.getElementById('posY').value = state.posY;
+      document.getElementById('fontSize').value = state.fontSize;
+      document.getElementById('textColor').value = state.textColor;
+      if (tpl.bgFit) document.getElementById('bgFitSelect').value = tpl.bgFit;
+
+      handleAspectRatioChange();
+      showAlert(`템플릿 "${tpl.name}"을(를) 불러왔습니다.`, 'info');
+    }
+
+    function updateTemplate(id) {
+      const index = state.templates.findIndex(t => t.id === id);
+      if (index === -1) return;
+
+      const currentTpl = state.templates[index];
+      state.templates[index] = {
+        ...currentTpl,
+        text: state.text,
+        aspectRatio: state.aspectRatio,
+        posX: state.posX,
+        posY: state.posY,
+        fontSize: state.fontSize,
+        textColor: state.textColor,
+        bgFit: document.getElementById('bgFitSelect').value,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (persistTemplates()) {
+        showAlert(`템플릿 "${currentTpl.name}"이(가) 현재 설정으로 수정되었습니다.`, 'success');
+        renderTemplateList();
+      }
+    }
+
+    function deleteTemplate(id) {
+      const tpl = state.templates.find(t => t.id === id);
+      if (!tpl) return;
+
+      state.templates = state.templates.filter(t => t.id !== id);
+      if (persistTemplates()) {
+        showAlert(`템플릿 "${tpl.name}"이(가) 삭제되었습니다.`, 'info');
+        renderTemplateList();
+      }
+    }
+
+    function persistTemplates() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.templates));
+        return true;
+      } catch (err) {
+        showAlert('로컬 저장소 저장에 실패했습니다. (용량 초과 또는 접근 거부)', 'error');
+        return false;
+      }
+    }
+
+    function loadTemplatesFromStorage() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return;
+
+      try {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          state.templates = parsed;
+          renderTemplateList();
+        } else {
+          showAlert('저장소 데이터 형식이 올바르지 않습니다. 자동 덮어쓰지 않음.', 'error');
+        }
+      } catch (e) {
+        showAlert('저장소 데이터를 읽는 중 오류가 발생했습니다. 데이터 손상 가능성.', 'error');
+      }
+    }
+
+    function renderTemplateList() {
+      const container = document.getElementById('templateList');
+      container.innerHTML = '';
+
+      if (state.templates.length === 0) {
+        container.innerHTML = '<p class="notice-text">저장된 템플릿이 없습니다.</p>';
+        return;
+      }
+
+      state.templates.forEach(tpl => {
+        const item = document.createElement('div');
+        item.className = 'template-item';
+
+        item.innerHTML = `
+          <div class="tpl-header">
+            <span>${escapeHTML(tpl.name)}</span>
+            <span style="font-size:0.75rem; color:#666;">${tpl.aspectRatio}</span>
+          </div>
+          <div class="tpl-meta">
+            크기: ${tpl.fontSize}pt | 위치: (${tpl.posX}, ${tpl.posY})
+          </div>
+          <div class="tpl-actions">
+            <button class="btn" onclick="loadTemplate('${tpl.id}')">불러오기</button>
+            <button class="btn btn-secondary" onclick="updateTemplate('${tpl.id}')">현재 설정으로 수정</button>
+            <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">삭제</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // JSON Export / Import with Schema Validation (T03-C22 ~ C24)
+    function exportJSON() {
+      const payload = {
+        version: SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        templates: state.templates
+      };
+
+      const jsonStr = JSON.stringify(payload, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `card-studio-templates-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showAlert('템플릿 JSON 파일이 내보내기되었습니다.', 'success');
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const json = JSON.parse(e.target.result);
+
+          // Full Schema Validation
+          const validationResult = validateImportJSON(json);
+          if (!validationResult.valid) {
+            showAlert(`JSON 가져오기 실패: ${validationResult.reason} (기존 템플릿 유지됨)`, 'error');
+            event.target.value = '';
+            return;
+          }
+
+          const existingCount = state.templates.length;
+          const newTemplates = json.templates;
+
+          // Conflict resolution: re-assign ID if collision exists
+          const existingIds = new Set(state.templates.map(t => t.id));
+          let importedCount = 0;
+
+          newTemplates.forEach(tpl => {
+            let finalId = tpl.id;
+            if (existingIds.has(finalId)) {
+              finalId = generateUUID();
+            }
+            state.templates.push({
+              ...tpl,
+              id: finalId,
+              name: sanitizeText(tpl.name)
+            });
+            importedCount++;
+          });
+
+          persistTemplates();
+          renderTemplateList();
+          showAlert(`JSON 가져오기 성공! 이전: ${existingCount}개 → 가져온 후: ${state.templates.length}개 (+${importedCount}개 추가됨)`, 'success');
+
+        } catch (err) {
+          showAlert('문법이 손상된 JSON 파일입니다. 올바른 JSON 형식을 확인해 주세요. (기존 템플릿 유지됨)', 'error');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // Strict Validation Logic for Imported JSON
+    function validateImportJSON(json) {
+      if (!json || typeof json !== 'object') {
+        return { valid: false, reason: '루트 객체가 아닙니다.' };
+      }
+      if (!json.version) {
+        return { valid: false, reason: '필수 항목 [version]이 누락되었습니다.' };
+      }
+      if (!Array.isArray(json.templates)) {
+        return { valid: false, reason: '필수 항목 [templates] 배열이 누락되었거나 배열 타입이 아닙니다.' };
+      }
+
+      const validRatios = ['1:1', '4:5', '9:16'];
+
+      for (let i = 0; i < json.templates.length; i++) {
+        const item = json.templates[i];
+        if (!item.id || typeof item.id !== 'string') {
+          return { valid: false, reason: `${i + 1}번째 항목의 [id]가 유효하지 않습니다.` };
+        }
+        if (!item.name || typeof item.name !== 'string') {
+          return { valid: false, reason: `${i + 1}번째 항목의 [name]이 유효하지 않습니다.` };
+        }
+        if (typeof item.text !== 'string') {
+          return { valid: false, reason: `${i + 1}번째 항목의 [text] 문구 타입이 올바르지 않습니다.` };
+        }
+        if (!validRatios.includes(item.aspectRatio)) {
+          return { valid: false, reason: `${i + 1}번째 항목의 [aspectRatio]가 허용되지 않는 값입니다 (${item.aspectRatio}).` };
+        }
+        if (typeof item.posX !== 'number' || typeof item.posY !== 'number') {
+          return { valid: false, reason: `${i + 1}번째 항목의 좌표(posX, posY)가 숫자 타입이 아닙니다.` };
+        }
+        if (typeof item.fontSize !== 'number' || item.fontSize < 10 || item.fontSize > 300) {
+          return { valid: false, reason: `${i + 1}번째 항목의 글자 크기(fontSize) 범위를 벗어났습니다.` };
+        }
+      }
+
+      return { valid: true };
+    }
+
+    // Security & XSS Protection Helpers
+    function sanitizeText(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>
